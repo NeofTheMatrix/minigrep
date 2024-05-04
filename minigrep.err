@@ -1,0 +1,3 @@
+    Finished dev [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/minigrep poem.txt`
+(X) Problem parsing arguments: Not enough arguments!
