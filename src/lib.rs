@@ -10,14 +10,19 @@ pub struct Config {
 
 impl Config {
 
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
+    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
 
-        if args.len() < 3 {
-            return Err("Not enough arguments!");
-        }
+        args.next(); // <- Skip the first argument which is the own program name.
 
-        let query = args[1].clone();
-        let file_path = args[2].clone();
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string")
+        };
+
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file path")
+        };
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
@@ -44,28 +49,15 @@ pub fn run(_config: Config) -> Result<(), Box<dyn Error>> {
 
 pub fn search<'a>(_query: &str, _contents: &'a str) -> Vec<&'a str> {
 
-    let mut results = Vec::new();
+    _contents.lines().filter(|line| line.contains(_query)).collect()
 
-    for line in _contents.lines() {
-        if line.contains(_query) {
-            results.push(line);
-        }
-    }
-
-    results
 }
 
 pub fn search_case_insensitive<'a>(_query: &str, _contents: &'a str) -> Vec<&'a str> {
+
     let query = _query.to_lowercase();
-    let mut results = Vec::new();
+    _contents.lines().filter(|line| line.to_lowercase().contains(&query)).collect()
 
-    for line in _contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            results.push(line);
-        }
-    }
-
-    results
 }
 
 #[cfg(test)]
